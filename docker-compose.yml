@@ -27,18 +27,6 @@ services:
     command: ./setup.sh
     depends_on: 
       - db
-  app:
-    container_name: app
-    build: ./app
-    command: npm run dev -- -p 80
-    volumes:
-      - ./app:/usr/app
-      - /usr/app/node_modules
-    ports:
-      - 80:80
-    depends_on: 
-      - api
-      - db
   # Observability services
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -78,6 +66,7 @@ services:
       - ./config/loki/loki-config.yaml:/etc/loki/loki-config.yaml
       - ./data/loki/data:/data/loki
     command: -config.file=/etc/loki/loki-config.yaml
+    user: "root"
 
   grafana:
     image: grafana/grafana:main
