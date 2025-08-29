@@ -1,0 +1,9 @@
+{
+  "name": "otel-grafana-demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "docker-compose up",
+    "dev:app": "docker-compose up app api db"
+  }
+}

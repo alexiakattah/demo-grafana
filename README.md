@@ -1,0 +1,16 @@
+## Running the app
+
+1. Run with `npm run dev`. Requires [Docker](https://www.docker.com/) and docker-compose.
+1. Optionally, run `npm install` in `/api` and `/app`.
+1. Open the app at http://localhost
+1. View traces, logs, and metrics in Grafana at http://localhost:3000
+
+## Additional Resources
+
+- [Grafana Demo](https://play.grafana.org/d/000000012/grafana-play-home?orgId=1)
+- [Grafana Cloud](https://grafana.com/products/cloud/) - Actually useful free tier
+- [OpenTelemetry Key Terms](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md)
+- [OpenTelemetry JS](https://github.com/open-telemetry/opentelemetry-js)
+- [OpenTelemetry JS Contrib](https://github.com/open-telemetry/opentelemetry-js-contrib)
+- [OpenTelemetry Status](https://opentelemetry.io/status/)
+- [UtahJS Slides](https://bit.ly/3oBobaQ)

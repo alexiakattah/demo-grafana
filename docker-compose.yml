@@ -1,0 +1,83 @@
+version: "3.7"
+
+services:
+  db:
+    container_name: db
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: otel-grafana-demo
+      POSTGRES_PASSWORD: localpost
+    volumes:
+      - ./db/data/:/var/lib/postgresql/data/ # Persist data locally
+    ports:
+      - 5432:5432
+  api:
+    container_name: api
+    build: ./api
+    environment:
+      DATABASE_URL: "postgresql://postgres:localpost@db:5432/otel-grafana-demo"
+    volumes:
+      - ./api:/usr/api
+      - ./data/api/:/usr/api/data/
+      - /usr/api/node_modules
+    ports:
+      - 8080:8080 # API
+      - 9464:9464 # Metrics API
+    command: ./setup.sh
+    depends_on: 
+      - db
+  # Observability services
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
+  prometheus:
+    image: prom/prometheus:latest
+    user: root
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+
+  promtail:
+    image: grafana/promtail
+    volumes:
+      - ./config/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - ./data/api/:/usr/api/data/
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    depends_on:
+      - api
+      - loki
+
+  loki:
+    image: grafana/loki
+    ports:
+      - 3100:3100
+    volumes:
+      - ./config/loki/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./data/loki/data:/data/loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    user: "root"
+
+  grafana:
+    image: grafana/grafana:main
+    environment: 
+      # Disable authentication
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./config/provisioning/:/etc/grafana/provisioning
+    ports:
+      - 3000:3000
